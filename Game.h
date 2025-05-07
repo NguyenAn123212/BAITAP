@@ -19,7 +19,7 @@ class Player;
 class Map;
 class Bomb;
 class Enemy;
-struct Explosion; // Định nghĩa Explosion nên ở Bomb.h
+struct Explosion; 
 
 enum class GameState {
     MAIN_MENU,
