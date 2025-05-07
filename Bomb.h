@@ -26,7 +26,7 @@ public:
     void setMap(Map* map) { mMap = map; }
     void createExplosion(); // Đảm bảo hàm này công khai nếu Game cần gọi trực tiếp
 
-    // Getters
+
     bool isExploding() const { return mExploding; }
     bool isDone() const { return mDone; }
     int getX() const { return mX; }
@@ -35,8 +35,8 @@ public:
     const Explosion& getExplosion() const { return mExplosion; }
     Explosion& getExplosion() { return mExplosion; }
 
-    bool hasExplosionSoundPlayed() const { return mExplosionSoundPlayed; } // << Getter cho cờ âm thanh
-    void setExplosionSoundPlayed(bool played) { mExplosionSoundPlayed = played; } // << Setter cho cờ âm thanh
+    bool hasExplosionSoundPlayed() const { return mExplosionSoundPlayed; } 
+    void setExplosionSoundPlayed(bool played) { mExplosionSoundPlayed = played; } 
 
 
 private:
@@ -57,7 +57,7 @@ private:
     const int mTotalBombFrames = 3;
 
     Explosion mExplosion;
-    bool mExplosionSoundPlayed; // << Cờ để theo dõi âm thanh nổ đã phát chưa
+    bool mExplosionSoundPlayed;
 };
 
-#endif // BOMB_H
+#endif 
