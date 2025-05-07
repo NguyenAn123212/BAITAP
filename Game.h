@@ -5,24 +5,22 @@
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
 #include <vector>
-#include <memory> // Cần cho std::unique_ptr
+#include <memory> 
 #include <string>
 #include <array>
-#include <iomanip> // Cần cho std::setw và std::setfill
-#include <sstream> // Cần cho std::ostringstream
+#include <iomanip> 
+#include <sstream> 
 
-#include "Menu.h"          // Menu chính
-#include "GameOptions.h"   // Cấu trúc lưu trữ tùy chọn game
-#include "OptionsMenu.h"   // Menu tùy chọn
+#include "Menu.h"         
+#include "GameOptions.h"   
+#include "OptionsMenu.h"  
 
-// Forward declarations cho các lớp game khác
 class Player;
 class Map;
 class Bomb;
 class Enemy;
 struct Explosion; // Định nghĩa Explosion nên ở Bomb.h
 
-// Enum trạng thái của game
 enum class GameState {
     MAIN_MENU,
     OPTIONS_MENU,
@@ -41,7 +39,7 @@ public:
     void render();
 
     bool checkCollision(SDL_Rect a, SDL_Rect b);
-    bool isColliding(int x, int y, int width, int height); // Đảm bảo hàm này được khai báo nếu Game cần
+    bool isColliding(int x, int y, int width, int height);
 
 private:
     SDL_Renderer* mRenderer;
@@ -85,21 +83,17 @@ private:
     SDL_Texture* mTimerTextTexture;
     SDL_Color mUiTextColor;
 
-    // Các thành phần của Game Over Menu
     SDL_Texture* mGameOverStateTitleTexture;
     SDL_Texture* mFinalScoreTextTexture;
     SDL_Texture* mHighScoreTextTexture;
-    SDL_Rect mContinueButtonRect;      // Khai báo cho nút
-    SDL_Rect mEndGameButtonRect;       // Khai báo cho nút
-    SDL_Texture* mContinueButtonTexture; // Khai báo cho texture nút
-    SDL_Texture* mEndGameButtonTexture;  // Khai báo cho texture nút
+    SDL_Rect mContinueButtonRect;    
+    SDL_Rect mEndGameButtonRect;      
+    SDL_Texture* mContinueButtonTexture; 
+    SDL_Texture* mEndGameButtonTexture;  
 
-    // --- Hàm tiện ích nội bộ ---
     SDL_Texture* loadTexture(const std::string& path);
-    // Khai báo cho createTextTexture, đảm bảo tên tham số khớp (ví dụ: fontToUse)
     SDL_Texture* createTextTexture(const std::string& text, SDL_Color color, TTF_Font* fontToUse);
 
-    // --- Quản lý trạng thái và logic game ---
     void startGame();
     void resetGame();
     void transitionToMainMenu();
@@ -112,26 +106,22 @@ private:
     void loadHighScore();
     void saveHighScore();
 
-    // --- Quản lý audio ---
     bool loadAudio();
     void playIngameMusic();
     void stopMusic();
     void playBombSoundEffect();
 
-    // --- Xử lý sự kiện cho các menu con ---
     void handleMainMenuEvents(SDL_Event& e);
     void handleOptionsMenuEvents(SDL_Event& e);
     void handleGameOverMenuEvents(SDL_Event& e);
 
-    // --- Render các phần khác nhau ---
     void renderPlayingState();
     void renderScoreAndTimer();
     void renderGameOverMenu();
 
-    // --- Logic cụ thể của game ---
     void placeBomb();
     void createEnemiesBasedOnOptions();
-    void initializeGameOverMenuAssets(); // << KHAI BÁO CHO HÀM NÀY
+    void initializeGameOverMenuAssets();
 };
 
 #endif // GAME_H
