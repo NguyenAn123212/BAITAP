@@ -1,21 +1,19 @@
-﻿#include <iostream>
+#include <iostream>
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
-#include <SDL_mixer.h> // << Thêm thư viện SDL_mixer
+#include <SDL_mixer.h>
 #include "game.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 
 int WinMain(int argc, char* args[]) {
-    // Initialize SDL
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) { // << Thêm SDL_INIT_AUDIO
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    // Initialize SDL_image
     int imgFlags = IMG_INIT_PNG;
     if (!(IMG_Init(imgFlags) & imgFlags)) {
         std::cerr << "SDL_image could not initialize! SDL_image Error: " << IMG_GetError() << std::endl;
@@ -23,7 +21,6 @@ int WinMain(int argc, char* args[]) {
         return 1;
     }
 
-    // Initialize SDL_ttf
     if (TTF_Init() == -1) {
         std::cerr << "SDL_ttf could not initialize! TTF_Error: " << TTF_GetError() << std::endl;
         IMG_Quit();
@@ -31,32 +28,23 @@ int WinMain(int argc, char* args[]) {
         return 1;
     }
 
-    // Initialize SDL_mixer
-    // Tần số, định dạng, số kênh (2 cho stereo), kích thước chunk
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
         std::cerr << "SDL_mixer could not initialize! Mix_Error: " << Mix_GetError() << std::endl;
-        // Tiếp tục mà không có âm thanh hoặc thoát tùy bạn
-        // TTF_Quit();
-        // IMG_Quit();
-        // SDL_Quit();
-        // return 1;
     }
 
 
-    // Create window
     SDL_Window* window = SDL_CreateWindow("Bomberman", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == nullptr) {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-        if (Mix_Linked_Version()) Mix_CloseAudio(); // Đóng audio nếu đã mở
-        Mix_Quit(); // Giải phóng SDL_mixer
+        if (Mix_Linked_Version()) Mix_CloseAudio();
+        Mix_Quit();
         TTF_Quit();
         IMG_Quit();
         SDL_Quit();
         return 1;
     }
 
-    // Create renderer
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if (renderer == nullptr) {
         std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
@@ -69,7 +57,6 @@ int WinMain(int argc, char* args[]) {
         return 1;
     }
 
-    // Create game
     Game game(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
     if (!game.initialize()) {
         std::cerr << "Failed to initialize game!" << std::endl;
@@ -83,7 +70,6 @@ int WinMain(int argc, char* args[]) {
         return 1;
     }
 
-    // Game loop
     bool quit = false;
     SDL_Event e;
     Uint32 lastTime = SDL_GetTicks();
@@ -117,13 +103,11 @@ int WinMain(int argc, char* args[]) {
         }
     }
 
-    // Clean up
-    // Game object sẽ tự giải phóng tài nguyên của nó (bao gồm cả âm thanh đã tải)
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
-    if (Mix_Linked_Version()) Mix_CloseAudio(); // Đóng thiết bị audio
-    Mix_Quit();      // Giải phóng SDL_mixer
+    if (Mix_Linked_Version()) Mix_CloseAudio();
+    Mix_Quit();
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
