@@ -16,9 +16,8 @@ Bomb::Bomb(int x, int y, int size, float fuseTime, int explosionRange)
     mMap(nullptr),
     mCurrentFrame(0),
     mFrameTime(0.0f),
-    mExplosionSoundPlayed(false) // << Khởi tạo cờ là false
+    mExplosionSoundPlayed(false) 
 {
-    // Constructor body
 }
 
 void Bomb::update(float deltaTime) {
@@ -34,10 +33,10 @@ void Bomb::update(float deltaTime) {
 
         if (mTimer >= mFuseTime) {
             mExploding = true;
-            mTimer = 0.0f; // Reset timer cho thời gian nổ
-            mCurrentFrame = 0; // Reset frame cho animation nổ (nếu có)
+            mTimer = 0.0f; 
+            mCurrentFrame = 0; 
             createExplosion();
-            // mExplosionSoundPlayed sẽ được Game.cpp quản lý khi phát hiện mExploding = true
+           
         }
     }
     else {
@@ -56,12 +55,10 @@ void Bomb::render(SDL_Renderer* renderer, SDL_Texture* bombTexture, SDL_Texture*
         int frameWidth = 0, frameHeight = 0;
         SDL_QueryTexture(bombTexture, nullptr, nullptr, &frameWidth, &frameHeight);
 
-        if (mTotalBombFrames > 0) { // Tránh chia cho 0
+        if (mTotalBombFrames > 0) { 
             frameWidth /= mTotalBombFrames;
         }
         else {
-            // Xử lý trường hợp mTotalBombFrames = 0 (ví dụ: không có animation)
-            // Hoặc đảm bảo mTotalBombFrames luôn > 0
         }
 
 
@@ -80,12 +77,12 @@ void Bomb::render(SDL_Renderer* renderer, SDL_Texture* bombTexture, SDL_Texture*
 
 void Bomb::createExplosion() {
     mExplosion.parts.clear();
-    mExplosion.parts.push_back({ mX, mY }); // Vị trí trung tâm
+    mExplosion.parts.push_back({ mX, mY }); 
 
-    // Giới hạn phạm vi nổ, ví dụ phạm vi 1 ô theo các hướng
-    int currentExplosionRange = 1; // Hoặc sử dụng mExplosionRange nếu bạn muốn nó thay đổi được
+    
+    int currentExplosionRange = 1; 
 
-    // Right
+   
     for (int i = 1; i <= currentExplosionRange; ++i) {
         int newX = mX + i * mSize;
         int newY = mY;
@@ -97,10 +94,10 @@ void Bomb::createExplosion() {
             if (mMap->getTileType(tileRow, tileCol) == TileType::SOFT_WALL) break;
         }
         else {
-            mExplosion.parts.push_back({ newX, newY }); // Thêm nếu không có map
+            mExplosion.parts.push_back({ newX, newY }); 
         }
     }
-    // Left
+
     for (int i = 1; i <= currentExplosionRange; ++i) {
         int newX = mX - i * mSize;
         int newY = mY;
@@ -115,7 +112,7 @@ void Bomb::createExplosion() {
             mExplosion.parts.push_back({ newX, newY });
         }
     }
-    // Down
+ 
     for (int i = 1; i <= currentExplosionRange; ++i) {
         int newX = mX;
         int newY = mY + i * mSize;
@@ -130,7 +127,7 @@ void Bomb::createExplosion() {
             mExplosion.parts.push_back({ newX, newY });
         }
     }
-    // Up
+  
     for (int i = 1; i <= currentExplosionRange; ++i) {
         int newX = mX;
         int newY = mY - i * mSize;
