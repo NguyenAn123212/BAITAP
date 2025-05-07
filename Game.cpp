@@ -1,18 +1,17 @@
-﻿#include "game.h"
-#include <SDL_image.h> 
-#include <iostream>    
-#include <random>      
-#include <ctime>       
-#include <algorithm>   // Cho std::min, std::max (nếu cần)
-#include <iomanip>     // Cho std::setw, std::setfill
-#include <sstream>     // Cho std::ostringstream
+#include "game.h"
+#include <SDL_image.h>
+#include <iostream>
+#include <random>
+#include <ctime>
+#include <algorithm>
+#include <iomanip>
+#include <sstream>
 
-// Bao gồm các header của các đối tượng game
 #include "player.h"
-#include "map.h"    // Map.h nên định nghĩa TileType
-#include "bomb.h"   // Bomb.h định nghĩa Explosion, ExplosionPart
-#include "enemies.h"// Enemies.h có thể định nghĩa enum Direction
-// OptionsMenu.h đã được include trong Game.h
+#include "map.h"
+#include "bomb.h"
+#include "enemies.h"
+
 
 Game::Game(SDL_Renderer* renderer, int screenWidth, int screenHeight)
     : mRenderer(renderer),
@@ -48,7 +47,7 @@ Game::Game(SDL_Renderer* renderer, int screenWidth, int screenHeight)
     mHighScoreTextTexture(nullptr),
     mContinueButtonTexture(nullptr),
     mEndGameButtonTexture(nullptr)
-    // mContinueButtonRect và mEndGameButtonRect sẽ được khởi tạo giá trị trong initializeGameOverMenuAssets
+
 {
     for (auto& texture : mSoftWallTextures) {
         texture = nullptr;
@@ -58,7 +57,6 @@ Game::Game(SDL_Renderer* renderer, int screenWidth, int screenHeight)
 }
 
 Game::~Game() {
-    // unique_ptr sẽ tự giải phóng mMainMenu, mOptionsMenu, mPlayer, mMap
     if (mPlayerTexture) SDL_DestroyTexture(mPlayerTexture);
     if (mEnemyTexture) SDL_DestroyTexture(mEnemyTexture);
     if (mBackgroundTexture) SDL_DestroyTexture(mBackgroundTexture);
@@ -114,10 +112,9 @@ bool Game::initialize() {
     mOptionsMenu = std::make_unique<OptionsMenu>(mRenderer, mUiFont, mScreenWidth, mScreenHeight, mGameSettings);
     if (!mOptionsMenu || !mOptionsMenu->initialize()) {
         std::cerr << "Game Error: Failed to initialize the options menu!" << std::endl;
-        // Quyết định xem có nên return false hay cho game chạy mà không có options
     }
 
-    initializeGameOverMenuAssets(); // << GỌI HÀM NÀY (Dòng 117 trong file bạn cung cấp)
+    initializeGameOverMenuAssets();
 
     transitionToMainMenu();
 
@@ -127,7 +124,6 @@ bool Game::initialize() {
     return true;
 }
 
-// Định nghĩa của createTextTexture
 SDL_Texture* Game::createTextTexture(const std::string& text, SDL_Color color, TTF_Font* fontToUse) {
     if (!fontToUse || !mRenderer) {
         std::cerr << "Game Error: Cannot create text texture, font or renderer is null. Text: " << text << std::endl;
@@ -146,9 +142,7 @@ SDL_Texture* Game::createTextTexture(const std::string& text, SDL_Color color, T
     return textTexture;
 }
 
-// Định nghĩa của initializeGameOverMenuAssets
 void Game::initializeGameOverMenuAssets() {
-    // Dòng 148 trong file bạn cung cấp (gọi createTextTexture)
     mContinueButtonTexture = createTextTexture("Choi Lai (R)", mUiTextColor, mUiFont);
     mEndGameButtonTexture = createTextTexture("Menu Chinh (M)", mUiTextColor, mUiFont);
 
@@ -157,7 +151,6 @@ void Game::initializeGameOverMenuAssets() {
     }
 
     int btnWidth, btnHeight;
-    // Dòng 158 trong file bạn cung cấp (sử dụng mContinueButtonRect)
     if (mContinueButtonTexture && TTF_SizeText(mUiFont, "Choi Lai (R)", &btnWidth, &btnHeight) == 0) {
         mContinueButtonRect = { (mScreenWidth - btnWidth) / 2, mScreenHeight / 2 + 60, btnWidth, btnHeight };
     }
@@ -307,7 +300,7 @@ void Game::resetGame() {
 }
 
 void Game::createEnemiesBasedOnOptions() {
-    if (!mMap || !mEnemyTexture) { // mPlayer có thể không cần thiết ở đây nếu chỉ tạo enemy
+    if (!mMap || !mEnemyTexture) {
         std::cerr << "Game Warning: Cannot create enemies. Essential components (map or enemy texture) are missing." << std::endl;
         return;
     }
@@ -381,9 +374,8 @@ void Game::handleEvent(SDL_Event& e) {
         (mCurrentState == GameState::MAIN_MENU || mCurrentState == GameState::GAME_OVER_MENU)) {
         bool menuHandledOptionKey = false;
         if (mCurrentState == GameState::MAIN_MENU && mMainMenu) {
-            // Tạm thời không để Menu xử lý phím 'o', để Game xử lý trực tiếp cho debug
-            // MenuAction action = mMainMenu->handleEvent(e); // Điều này sẽ không hoạt động tốt vì e đã được dùng
-            // if (action == MenuAction::OPEN_OPTIONS) menuHandledOptionKey = true;
+
+
         }
         if (!menuHandledOptionKey) {
             transitionToOptionsMenu();
@@ -575,7 +567,7 @@ void Game::update(float deltaTime) {
         }
     }
     else if (mCurrentState == GameState::OPTIONS_MENU) {
-        // if (mOptionsMenu) mOptionsMenu->update(); 
+
     }
 }
 
@@ -759,6 +751,6 @@ bool Game::checkCollision(SDL_Rect a, SDL_Rect b) {
 }
 
 bool Game::isColliding(int x, int y, int width, int height) {
-    if (!mMap) return true; // Nếu không có map, coi như luôn va chạm để tránh lỗi
-    return mMap->isColliding(x, y, width, height); // Ủy thác cho map
+    if (!mMap) return true;
+    return mMap->isColliding(x, y, width, height);
 }
