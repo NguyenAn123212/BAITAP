@@ -1,6 +1,6 @@
 ﻿#include "menu.h"
-#include <SDL_image.h> // Để sử dụng IMG_LoadTexture
-#include <iostream>    // Để debug (std::cerr)
+#include <SDL_image.h> 
+#include <iostream>    
 
 Menu::Menu(SDL_Renderer* renderer, TTF_Font* font, int screenWidth, int screenHeight, Mix_Music* menuMusic)
     : mRenderer(renderer),
@@ -9,9 +9,9 @@ Menu::Menu(SDL_Renderer* renderer, TTF_Font* font, int screenWidth, int screenHe
     mScreenHeight(screenHeight),
     mMenuBackgroundTexture(nullptr),
     mStartButtonTexture(nullptr),
-    mOptionsButtonTexture(nullptr), // << KHỞI TẠO TEXTURE NÚT OPTIONS
+    mOptionsButtonTexture(nullptr), 
     mExitButtonTexture(nullptr),
-    mButtonTextColor({ 255, 255, 255, 255 }), // Màu trắng cho chữ trên nút
+    mButtonTextColor({ 255, 255, 255, 255 }), 
     mMenuMusic(menuMusic)
 {
     if (!mRenderer) {
@@ -23,14 +23,11 @@ Menu::Menu(SDL_Renderer* renderer, TTF_Font* font, int screenWidth, int screenHe
 }
 
 Menu::~Menu() {
-    // Giải phóng các texture do Menu tạo ra
     if (mMenuBackgroundTexture) SDL_DestroyTexture(mMenuBackgroundTexture);
     if (mStartButtonTexture) SDL_DestroyTexture(mStartButtonTexture);
-    if (mOptionsButtonTexture) SDL_DestroyTexture(mOptionsButtonTexture); // << GIẢI PHÓNG TEXTURE NÚT OPTIONS
+    if (mOptionsButtonTexture) SDL_DestroyTexture(mOptionsButtonTexture); 
     if (mExitButtonTexture) SDL_DestroyTexture(mExitButtonTexture);
 
-    // Font (mFont) và nhạc (mMenuMusic) được quản lý (tải và giải phóng) bởi lớp Game.
-    // Menu chỉ sử dụng con trỏ tới chúng.
 }
 
 bool Menu::initialize(const std::string& backgroundPath) {
@@ -39,43 +36,36 @@ bool Menu::initialize(const std::string& backgroundPath) {
         return false;
     }
 
-    // Tải hình nền cho menu
     mMenuBackgroundTexture = loadTexture(backgroundPath);
     if (mMenuBackgroundTexture == nullptr) {
         std::cerr << "Menu Warning: Failed to load menu background texture from path: " << backgroundPath << std::endl;
-        // Game có thể tiếp tục mà không có hình nền menu, hoặc bạn có thể quyết định return false.
     }
 
-    // Tạo texture cho các nút
     mStartButtonTexture = createTextTexture("Start Game", mButtonTextColor);
-    mOptionsButtonTexture = createTextTexture("Options", mButtonTextColor); // << TẠO TEXTURE CHO NÚT OPTIONS
+    mOptionsButtonTexture = createTextTexture("Options", mButtonTextColor);
     mExitButtonTexture = createTextTexture("Exit Game", mButtonTextColor);
 
     if (!mStartButtonTexture || !mOptionsButtonTexture || !mExitButtonTexture) {
         std::cerr << "Menu Error: Failed to create text textures for one or more menu buttons!" << std::endl;
-        return false; // Lỗi nghiêm trọng nếu không tạo được nút
+        return false; 
     }
 
-    // Thiết lập kích thước và vị trí cho các nút (ví dụ, căn giữa và cách đều)
     int buttonWidth, buttonHeight;
-    int commonButtonHeight = 0; // Để tính toán vị trí Y dựa trên chiều cao chung
+    int commonButtonHeight = 0; 
 
-    // Nút "Start Game"
     if (TTF_SizeText(mFont, "Start Game", &buttonWidth, &buttonHeight) == 0) {
         if (commonButtonHeight == 0) commonButtonHeight = buttonHeight;
         mStartButtonRect = { (mScreenWidth - buttonWidth) / 2, mScreenHeight / 2 - commonButtonHeight - 30, buttonWidth, buttonHeight }; // 30 là khoảng cách
     }
     else {
         std::cerr << "Menu Warning: Failed to get size of 'Start Game' text: " << TTF_GetError() << std::endl;
-        // Sử dụng kích thước mặc định nếu có lỗi
         if (commonButtonHeight == 0) commonButtonHeight = 50;
         mStartButtonRect = { (mScreenWidth - 200) / 2, mScreenHeight / 2 - commonButtonHeight - 30, 200, 50 };
     }
 
-    // Nút "Options"
     if (TTF_SizeText(mFont, "Options", &buttonWidth, &buttonHeight) == 0) {
-        if (commonButtonHeight == 0) commonButtonHeight = buttonHeight; // Nếu Start chưa set
-        mOptionsButtonRect = { (mScreenWidth - buttonWidth) / 2, mScreenHeight / 2 , buttonWidth, buttonHeight }; // Nằm giữa
+        if (commonButtonHeight == 0) commonButtonHeight = buttonHeight; 
+        mOptionsButtonRect = { (mScreenWidth - buttonWidth) / 2, mScreenHeight / 2 , buttonWidth, buttonHeight }; 
     }
     else {
         std::cerr << "Menu Warning: Failed to get size of 'Options' text: " << TTF_GetError() << std::endl;
@@ -94,12 +84,12 @@ bool Menu::initialize(const std::string& backgroundPath) {
         mExitButtonRect = { (mScreenWidth - 200) / 2, mScreenHeight / 2 + commonButtonHeight + 30, 200, 50 };
     }
 
-    return true; // Khởi tạo thành công
+    return true; 
 }
 
 MenuAction Menu::handleEvent(SDL_Event& e) {
     if (e.type == SDL_MOUSEBUTTONDOWN) {
-        if (e.button.button == SDL_BUTTON_LEFT) { // Chỉ xử lý nhấn chuột trái
+        if (e.button.button == SDL_BUTTON_LEFT) { 
             int mouseX, mouseY;
             SDL_GetMouseState(&mouseX, &mouseY);
             SDL_Point mousePoint = { mouseX, mouseY };
@@ -107,7 +97,7 @@ MenuAction Menu::handleEvent(SDL_Event& e) {
             if (SDL_PointInRect(&mousePoint, &mStartButtonRect)) {
                 return MenuAction::START_GAME;
             }
-            else if (SDL_PointInRect(&mousePoint, &mOptionsButtonRect)) { // << KIỂM TRA NÚT OPTIONS
+            else if (SDL_PointInRect(&mousePoint, &mOptionsButtonRect)) { 
                 return MenuAction::OPEN_OPTIONS;
             }
             else if (SDL_PointInRect(&mousePoint, &mExitButtonRect)) {
@@ -115,16 +105,6 @@ MenuAction Menu::handleEvent(SDL_Event& e) {
             }
         }
     }
-    // Cho phép dùng phím mũi tên và Enter để chọn (tùy chọn, có thể thêm sau)
-    // Ví dụ:
-    // if (e.type == SDL_KEYDOWN) {
-    //     switch (e.key.keysym.sym) {
-    //         // case SDLK_UP: // Di chuyển lựa chọn lên
-    //         // case SDLK_DOWN: // Di chuyển lựa chọn xuống
-    //         // case SDLK_RETURN: // Xác nhận lựa chọn hiện tại
-    //     }
-    // }
-    return MenuAction::NONE; // Không có hành động nào được thực hiện
 }
 
 void Menu::render() {
@@ -133,27 +113,22 @@ void Menu::render() {
         return;
     }
 
-    // Vẽ hình nền của menu (nếu có)
     if (mMenuBackgroundTexture) {
-        SDL_RenderCopy(mRenderer, mMenuBackgroundTexture, NULL, NULL); // Vẽ toàn màn hình
+        SDL_RenderCopy(mRenderer, mMenuBackgroundTexture, NULL, NULL); 
     }
     else {
-        // Nếu không có hình nền, vẽ một màu nền đơn giản
-        SDL_SetRenderDrawColor(mRenderer, 20, 20, 50, 255); // Màu xanh navy đậm cho menu
+        SDL_SetRenderDrawColor(mRenderer, 20, 20, 50, 255);
         SDL_RenderClear(mRenderer);
     }
 
-    // Vẽ nút "Start Game"
     if (mStartButtonTexture) {
         SDL_RenderCopy(mRenderer, mStartButtonTexture, NULL, &mStartButtonRect);
     }
 
-    // Vẽ nút "Options"
-    if (mOptionsButtonTexture) { // << VẼ NÚT OPTIONS
+    if (mOptionsButtonTexture) {
         SDL_RenderCopy(mRenderer, mOptionsButtonTexture, NULL, &mOptionsButtonRect);
     }
 
-    // Vẽ nút "Exit Game"
     if (mExitButtonTexture) {
         SDL_RenderCopy(mRenderer, mExitButtonTexture, NULL, &mExitButtonRect);
     }
@@ -161,17 +136,16 @@ void Menu::render() {
 
 void Menu::playMusic() {
     if (mMenuMusic) {
-        if (Mix_PlayingMusic() == 0) { // Nếu không có nhạc nào đang phát
-            Mix_PlayMusic(mMenuMusic, -1); // Phát nhạc menu, lặp vô hạn (-1)
+        if (Mix_PlayingMusic() == 0) {
+            Mix_PlayMusic(mMenuMusic, -1); 
         }
-        else if (Mix_PausedMusic() == 1) { // Nếu nhạc đang tạm dừng
+        else if (Mix_PausedMusic() == 1) { 
             Mix_ResumeMusic();
         }
-        // Nếu một bản nhạc khác (ví dụ nhạc game) đang phát,
-        // lớp Game sẽ chịu trách nhiệm dừng nó trước khi chuyển về menu và gọi playMusic() này.
+       
     }
     else {
-        // std::cerr << "Menu Warning: Attempted to play menu music, but it's null (not loaded)." << std::endl;
+        
     }
 }
 
@@ -186,7 +160,7 @@ SDL_Texture* Menu::createTextTexture(const std::string& text, SDL_Color color) {
         return nullptr;
     }
     SDL_Texture* textTexture = SDL_CreateTextureFromSurface(mRenderer, textSurface);
-    SDL_FreeSurface(textSurface); // Giải phóng surface sau khi tạo texture
+    SDL_FreeSurface(textSurface);
     if (!textTexture) {
         std::cerr << "Menu Error: SDL_CreateTextureFromSurface failed for \"" << text << "\". SDL_Error: " << SDL_GetError() << std::endl;
     }
