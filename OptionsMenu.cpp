@@ -1,16 +1,16 @@
 ﻿#include "OptionsMenu.h"
-#include <SDL_image.h> // Mặc dù không load texture nền ở đây, nhưng có thể cần
-#include <iostream>    // Cho std::cerr
-#include <string>      // Cho std::to_string
+#include <SDL_image.h> 
+#include <iostream>   
+#include <string>     
 
 OptionsMenu::OptionsMenu(SDL_Renderer* renderer, TTF_Font* font, int screenWidth, int screenHeight, GameOptions& gameSettings)
     : mRenderer(renderer),
     mFont(font),
     mScreenWidth(screenWidth),
     mScreenHeight(screenHeight),
-    mGameSettings(gameSettings), // Lưu tham chiếu
-    mTextColor({ 220, 220, 220, 255 }), // Màu xám nhạt cho nhãn
-    mButtonTextColor({ 255, 255, 255, 255 }), // Màu trắng cho nút
+    mGameSettings(gameSettings), 
+    mTextColor({ 220, 220, 220, 255 }), 
+    mButtonTextColor({ 255, 255, 255, 255 }), 
     mTitleTexture(nullptr),
     mBackButtonTexture(nullptr)
 {
@@ -64,29 +64,26 @@ void OptionsMenu::setupOptionItemUI(OptionUI& item, const std::string& labelText
     item.decreaseAction = decAction;
     item.increaseAction = incAction;
 
-    // Tạo texture cho nhãn
-    destroyOptionItemTextures(item); // Xóa texture cũ nếu có
+   
+    destroyOptionItemTextures(item); 
     item.labelTexture = createTextTexture(labelText + ":", mTextColor);
 
-    // Tạo texture cho nút giảm và tăng
     item.decreaseButtonTexture = createTextTexture("-", mButtonTextColor);
     item.increaseButtonTexture = createTextTexture("+", mButtonTextColor);
 
-    // Tính toán Rects (ví dụ đơn giản, cần tinh chỉnh cho đẹp)
     int labelW = 0, labelH = 0;
     int valW = 0, valH = 0;
     int btnW = 0, btnH = 0;
 
     if (item.labelTexture) TTF_SizeText(mFont, (labelText + ":").c_str(), &labelW, &labelH);
-    // Giá trị sẽ được cập nhật trong updateOptionDisplays
     if (item.decreaseButtonTexture) TTF_SizeText(mFont, "-", &btnW, &btnH);
 
     int padding = 10;
-    int buttonSize = btnH + padding / 2; // Làm nút vuông vắn hơn một chút
+    int buttonSize = btnH + padding / 2;
 
     item.labelRect = { 50, yPos, labelW, labelH };
     item.decreaseButtonRect = { mScreenWidth / 2 + 50, yPos, buttonSize, buttonSize };
-    item.valueRect = { item.decreaseButtonRect.x + buttonSize + padding, yPos, 50, labelH }; // Ước lượng chiều rộng cho giá trị
+    item.valueRect = { item.decreaseButtonRect.x + buttonSize + padding, yPos, 50, labelH }; 
     item.increaseButtonRect = { item.valueRect.x + item.valueRect.w + padding, yPos, buttonSize, buttonSize };
 }
 
@@ -94,15 +91,13 @@ void OptionsMenu::setupOptionItemUI(OptionUI& item, const std::string& labelText
 bool OptionsMenu::initialize() {
     if (!mRenderer || !mFont) return false;
 
-    // Tạo tiêu đề
-    mTitleTexture = createTextTexture("Game Options", mButtonTextColor); // Dùng màu nút cho tiêu đề
+    mTitleTexture = createTextTexture("Game Options", mButtonTextColor); 
     if (mTitleTexture) {
         int w, h;
         SDL_QueryTexture(mTitleTexture, nullptr, nullptr, &w, &h);
         mTitleRect = { (mScreenWidth - w) / 2, 50, w, h };
     }
 
-    // Khởi tạo các mục tùy chọn
     mOptionItems.resize(4); // 4 tùy chọn
     int startY = mTitleRect.y + mTitleRect.h + 50;
     int spacingY = 60;
@@ -116,7 +111,6 @@ bool OptionsMenu::initialize() {
     setupOptionItemUI(mOptionItems[3], "Bomb Range", &mGameSettings.playerBombRange, 1, 5,
         OptionsMenuAction::DECREASE_BOMB_RANGE, OptionsMenuAction::INCREASE_BOMB_RANGE, startY + 3 * spacingY);
 
-    // Tạo nút "Back"
     mBackButtonTexture = createTextTexture("Back to Main Menu", mButtonTextColor);
     if (mBackButtonTexture) {
         int w, h;
@@ -124,7 +118,7 @@ bool OptionsMenu::initialize() {
         mBackButtonRect = { (mScreenWidth - w) / 2, mScreenHeight - h - 50, w, h };
     }
 
-    updateOptionDisplays(); // Cập nhật hiển thị giá trị ban đầu
+    updateOptionDisplays(); 
     return true;
 }
 
@@ -136,13 +130,11 @@ void OptionsMenu::updateOptionDisplays() {
         }
         if (item.optionValuePtr_int) {
             item.valueTexture = createTextTexture(std::to_string(*item.optionValuePtr_int), mTextColor);
-            if (item.valueTexture) { // Cập nhật lại valueRect nếu cần
+            if (item.valueTexture) { 
                 int valW, valH;
                 SDL_QueryTexture(item.valueTexture, nullptr, nullptr, &valW, &valH);
-                item.valueRect.w = valW; // Chỉ cập nhật chiều rộng, vị trí x,y,h giữ nguyên từ setup
-                // Căn giữa giá trị nếu muốn:
-                // item.valueRect.x = item.decreaseButtonRect.x + item.decreaseButtonRect.w + padding + (50 - valW)/2 ; // 50 là ước lượng ban đầu
-            }
+                item.valueRect.w = valW; 
+                         }
         }
     }
 }
@@ -154,19 +146,18 @@ OptionsMenuAction OptionsMenu::handleEvent(SDL_Event& e) {
             SDL_GetMouseState(&mouseX, &mouseY);
             SDL_Point mousePoint = { mouseX, mouseY };
 
-            // Kiểm tra nút "Back"
             if (SDL_PointInRect(&mousePoint, &mBackButtonRect)) {
                 return OptionsMenuAction::BACK_TO_MAIN_MENU;
             }
 
-            // Kiểm tra các nút +/- cho từng tùy chọn
+            
             for (auto& item : mOptionItems) {
                 if (SDL_PointInRect(&mousePoint, &item.decreaseButtonRect)) {
                     if (item.optionValuePtr_int && *item.optionValuePtr_int > item.minValue) {
                         (*item.optionValuePtr_int)--;
-                        if (item.label == "Player Speed") mGameSettings.updateActualPlayerSpeed(); // Cập nhật tốc độ thực tế
+                        if (item.label == "Player Speed") mGameSettings.updateActualPlayerSpeed(); 
                         updateOptionDisplays();
-                        return item.decreaseAction; // Hoặc có thể chỉ return NONE và để Game áp dụng khi thoát
+                        return item.decreaseAction; 
                     }
                 }
                 else if (SDL_PointInRect(&mousePoint, &item.increaseButtonRect)) {
@@ -186,16 +177,13 @@ OptionsMenuAction OptionsMenu::handleEvent(SDL_Event& e) {
 void OptionsMenu::render() {
     if (!mRenderer) return;
 
-    // Vẽ nền (ví dụ màu xám đậm)
     SDL_SetRenderDrawColor(mRenderer, 40, 40, 60, 255);
     SDL_RenderClear(mRenderer);
 
-    // Vẽ tiêu đề
     if (mTitleTexture) {
         SDL_RenderCopy(mRenderer, mTitleTexture, nullptr, &mTitleRect);
     }
 
-    // Vẽ các mục tùy chọn
     for (const auto& item : mOptionItems) {
         if (item.labelTexture) SDL_RenderCopy(mRenderer, item.labelTexture, nullptr, &item.labelRect);
         if (item.valueTexture) SDL_RenderCopy(mRenderer, item.valueTexture, nullptr, &item.valueRect);
@@ -203,7 +191,6 @@ void OptionsMenu::render() {
         if (item.increaseButtonTexture) SDL_RenderCopy(mRenderer, item.increaseButtonTexture, nullptr, &item.increaseButtonRect);
     }
 
-    // Vẽ nút "Back"
     if (mBackButtonTexture) {
         SDL_RenderCopy(mRenderer, mBackButtonTexture, nullptr, &mBackButtonRect);
     }
